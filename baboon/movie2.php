@@ -1,9 +1,59 @@
 <!DOCTYPE html>
+
+<html lang="en" dir="ltr">
+
+
 <head>
 <title>Rate your favorite movie</title>
 
-<link rel='stylesheet' type='text/css' href='//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css'>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+
+
 <link rel='stylesheet' type='text/css' href='stylesheet.css'>
+
+	
+
+
+<script type="text/javascript" src="jquery.rateit.min.js"></script>
+
+
+<script src="jRate.js"></script>
+
+	<script type="text/javascript">
+		$(function () {
+			var that = this;
+			var toolitup = $("#jRate").jRate({
+				rating: 1,
+				strokeColor: 'black',
+				width: 20,
+				height: 20,
+				precision: 0.5,
+				minSelected: 1,
+				onChange: function(rating) {
+					console.log("OnChange: Rating: "+rating);
+					var value = rating;
+					$.post("data.php", {phpvalue: value}, function(data) {
+					  $('div#php-data').text(data); });
+					
+				},
+				onSet: function(rating) {
+					console.log("OnSet: Rating: "+rating);
+				}
+			});
+			
+			$('#btn-click').on('click', function() {
+				toolitup.setRating(0);				
+			});
+			
+		});
+	</script>
+
 
 
 </head>
@@ -19,15 +69,18 @@
           <ul class="nav navbar-nav navbar-left">
 	    <li><a href="index.php">Home</a></li>
 	 </ul>
+	
+          <ul class="nav navbar-nav navbar-right">
+	
 
-          <form class="navbar-form navbar-right" role="search" Method='post' Action='movie2.php'>
+         <li> <form class="navbar-form navbar-right" role="search" Method='post' Action='movie2.php'>
 	    <div class="form-group">
                 <input type='text' name='name' class="form-control" placeholder="Search Movie..." required>
             </div>
 	  </form>
+	 </li>
 	  
 
-          <ul class="nav navbar-nav navbar-right">
  
 
             <li><a href="index.php">Log In</a></li>
@@ -38,6 +91,7 @@
         </nav>
       </div>
     </header>
+
 <div class="container">
 
 <div class="row">
@@ -45,10 +99,11 @@
 <div class="col-md-2"> </div>
 
 
-<div class="col-md-5" style="background:#2b1b17;color:white">
+<div class="col-md-5" style="background:black;color:white">
 
 <?php
 
+// code to curl OMDB website 
 function get_movie_information($name)
 {
     $url = "http://www.omdbapi.com/?t=".urlencode($name); 
@@ -63,7 +118,7 @@ function get_movie_information($name)
     return json_decode($curlData, true);
 }
 
-
+// take name from previous page, search and then assign returned json value into an array
 $arr = get_movie_information($_POST["name"]);
        
  	echo "<br>"; 
@@ -84,8 +139,10 @@ $arr = get_movie_information($_POST["name"]);
 	echo $arr['Plot'];
 	echo "<br>";
       
+    
+        
 
-        // assign variables the value from array data obtained from curling the OMDB API
+// assign variables the value from array data obtained from curling the OMDB API
         $title = $arr['Title'];
 	$year =  $arr['Year'];
 	$rated = $arr['Rated'];
@@ -112,10 +169,22 @@ $arr = get_movie_information($_POST["name"]);
 ?>
 
 
+<div id="jRate" style="height:10px;width: 10px;"></div>
+</br>
+<div id="php-data"></div>
+</br>
+
+    
+
+
+
+
+
+
 
 <form Id='Form' Method='post' Action='movie2.php'>
 
-<input type="submit" value="Add Movie" name="submit">
+<input type="submit" value="Rate Movie" name="submit" style="color:black">
 
 <input type="hidden" value="<?php echo $title;?>" name="title">
 <input type="hidden" value="<?php echo $year;?>" name="year">
@@ -127,21 +196,12 @@ $arr = get_movie_information($_POST["name"]);
 
 </form>
 
-
-
-<?php 
+<?php
 
 $hostname='127.0.0.1';
 $username='root';
 $password='gatesjobs';
 
-
-
-
-
-
-
- 
 
 //$title = $arr['Title'];
 //$year = $arr['Year'];
@@ -156,6 +216,11 @@ try{
        
     $db = new PDO("mysql:host=$hostname;dbname=baboon", $username, $password);
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+	
+
+
+
 
     $stmt = $db->prepare("INSERT INTO movies(title, year, rated, plot, poster) VALUES(:title, :year, :rated, :plot, :poster)");
 
@@ -181,7 +246,6 @@ try{
 ?>
 
 
-
 </div>
 
 </div>
@@ -192,8 +256,8 @@ try{
 
 
 
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+
 
 </body>
 

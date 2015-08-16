@@ -50,6 +50,9 @@
 
     <div class="col-md-2"> 
 
+<input type="hidden" class="rating"/>
+		
+
 
 <?php
 
